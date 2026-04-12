@@ -29,7 +29,7 @@ cargo bench    # run criterion benchmarks
 
 - [x] Week 1: Order book core (BTreeMap, price-time priority, fills)
 - [x] Week 2: Lock-free concurrent ingress + criterion benchmarks
-- [ ] Week 3: Go WebSocket gateway + sequencer
+- [x] Week 3: Go WebSocket gateway + sequencer
 - [ ] Week 4: Risk checks + append-only event log
 - [ ] Week 5: Raft consensus replication
 - [ ] Week 6: Snapshots + chaos testing
