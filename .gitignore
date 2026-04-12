@@ -1,0 +1,15 @@
+# Rust build artifacts
+engine/target/
+
+# Python virtual environment
+testing/venv/
+testing/__pycache__/
+*.pyc
+*.pyo
+
+# Go build artifacts
+gateway/*.exe
+
+# OS files
+.DS_Store
+Thumbs.db
