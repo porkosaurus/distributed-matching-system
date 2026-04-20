@@ -5,30 +5,39 @@ import (
 )
 
 func main() {
-	// channel buffer sizes — how many items can queue up before blocking
-	// 1000 is generous for development
 	orderCh := make(chan Order, 1000)
 	seqCh   := make(chan SequencedOrder, 1000)
 	fillCh  := make(chan Fill, 1000)
 
-	// connect to the Rust engine over Unix socket
-	// this path must match what the Rust engine listens on
+	// configure risk limits
+	// these are intentionally generous for development
+	// tighten them to test rejection behavior
+	risk := NewRiskManager(RiskLimits{
+		MaxPositionSize: 100000,  // max 100k shares net position
+		MaxNotional:     50000000, // max $500,000 per order (in cents)
+		MaxOrderSize:    10000,   // max 10k shares per order
+		PriceCollarPct:  0.10,    // max 10% from last trade price
+	})
+
 	eng, err := dialEngine("tcp://127.0.0.1:9000")
 	if err != nil {
 		log.Fatalf("cannot connect to engine: %v", err)
 	}
 
-	// create the client hub for WebSocket broadcast
 	h := newHub()
 
-	// start all goroutines
-	// each runs independently and communicates only through channels
-	go runSequencer(orderCh, seqCh)
+	// pass risk manager into sequencer
+	go runSequencer(orderCh, seqCh, risk)
 	go runEngineWriter(eng, seqCh)
 	go runEngineReader(eng, fillCh)
-	go runBroadcaster(h, fillCh)
 
-	// startServer blocks forever — it's the main loop
-	// all the real work happens in the goroutines above
+	// update positions when fills come back
+	go func() {
+		for fill := range fillCh {
+			risk.RecordFill(fill)
+			h.broadcast(fill)
+		}
+	}()
+
 	startServer(":8080", h, orderCh)
 }

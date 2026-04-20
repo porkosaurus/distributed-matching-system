@@ -1,5 +1,6 @@
 # Rust build artifacts
 engine/target/
+engine/events.log
 
 # Python virtual environment
 testing/venv/
