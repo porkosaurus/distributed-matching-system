@@ -10,6 +10,13 @@ testing/__pycache__/
 
 # Go build artifacts
 gateway/*.exe
+.gocache/
+raft/.gocache/
+
+# C++ build artifacts
+raft_cpp/build/
+raft_cpp/cmake-build-*/
+raft_cpp/*.exe
 
 # OS files
 .DS_Store
